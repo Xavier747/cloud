@@ -13,6 +13,7 @@ module.exports = {
       password:'',
       database: 'cloud1'
     },
+    
     migrations: {
       directory: './migrations'
     },
