@@ -12,6 +12,7 @@ module.exports = {
       user: 'root',
       password:'',
       database: 'cloud1'
+      
     },
 
     migrations: {
