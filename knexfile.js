@@ -4,6 +4,7 @@
  * @type { Object.<string, import("knex").Knex.Config> }
  */
 module.exports = {
+  // Ingresar el usuario
 
   development: {
     client: 'mysql2',
