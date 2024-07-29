@@ -29,8 +29,8 @@ const updateAnimal = async (req, res) => {
 
 const deleteAnimal = async (req, res) => {
     try {
-        const animal = await Animal.delete(req.params.id);
-        res.json(animal);
+        await Animal.delete(req.params.id);
+        res.status(204).send(); // 204 No Content
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

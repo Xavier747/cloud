@@ -1,52 +1,53 @@
 const Customer = require('../models/customer');
 
-//crear una funcion para el llamado a select del modelo
-//envia parametros req y res
-//req significa request = peticion
-//res significa response = respuesta
-const listCustomer = async (req,res)=>{
-    try{
-        // llamado a funcion de select
-        const customer = await Customer.getCustomers();
-        res.json(customer); //parsea a json y retorna la respuesta
-    }catch (error){
-        res.status(500).json({error: error.message })
+// Crear una función para el llamado a select del modelo
+const listCustomer = async (req, res) => {
+    try {
+        // Llamado a la función de select
+        const customers = await Customer.getCustomers();
+        res.json(customers); // Parsear a JSON y retornar la respuesta
+    } catch (error) {
+        console.error('Error fetching customers:', error); // Imprime el error en el servidor
+        res.status(500).json({ error: error.message });
     }
-}
+};
 
-const insertCustomer = async(req,res)=>{
-    try{
-        const customer =await Customer.insert(req.body); 
-        //201 para crear
-        res.status(201).json(customer)
-    }catch (error){
-        res.status(500).json({error: error.message })
+const insertCustomer = async (req, res) => {
+    try {
+        const customer = await Customer.insert(req.body);
+        // 201 para crear
+        res.status(201).json(customer);
+    } catch (error) {
+        console.error('Error inserting customer:', error); // Imprime el error en el servidor
+        res.status(500).json({ error: error.message });
     }
-}
+};
 
-const updateCustomer = async(req,res)=>{
-    try{
-        const customer =await Customer.update(req.body, req.params.id); 
-        //200 por default
-        res.jason(customer)
-    }catch (error){
-        res.status(500).json({error: error.message })
+const updateCustomer = async (req, res) => {
+    try {
+        const customer = await Customer.update(req.body, req.params.id);
+        // 200 por defecto
+        res.json(customer); // Corregido de `res.jason` a `res.json`
+    } catch (error) {
+        console.error('Error updating customer:', error); // Imprime el error en el servidor
+        res.status(500).json({ error: error.message });
     }
-}
+};
 
-const deleteCustomer = async(req,res)=>{
-    try{
-        const customer =await Customer.delete(req.params.id); 
-        //201 para crear
-        res.json(customer)
-    }catch (error){
-        res.status(500).json({error: error.message })
+const deleteCustomer = async (req, res) => {
+    try {
+        await Customer.delete(req.params.id);
+        // 204 para eliminar
+        res.status(204).send(); // No hay contenido que devolver
+    } catch (error) {
+        console.error('Error deleting customer:', error); // Imprime el error en el servidor
+        res.status(500).json({ error: error.message });
     }
-}
+};
 
-module.exports ={
+module.exports = {
     listCustomer,
     insertCustomer,
     updateCustomer,
     deleteCustomer,
-}
+};
