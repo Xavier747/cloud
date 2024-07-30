@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Cuidador</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            margin-top: 20px;
+            color: #333;
+        }
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        div {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+        }
+        select option {
+            color: #333; /* Cambia el color del texto de las opciones */
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .success {
+            color: green;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Registrar Cuidador</h1>
+    <form id="cuidadorForm">
+        <div>
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" required>
+        </div>
+        <div>
+            <label for="apellido">Apellido:</label>
+            <input type="text" id="apellido" name="apellido" required>
+        </div>
+        <div>
+            <label for="dni">DNI:</label>
+            <input type="text" id="dni" name="dni" required maxlength="20">
+        </div>
+        <div>
+            <label for="telefono">Teléfono:</label>
+            <input type="text" id="telefono" name="telefono" required>
+        </div>
+        <div>
+            <label for="direccion">Dirección:</label>
+            <input type="text" id="direccion" name="direccion" required>
+        </div>
+        <div>
+            <label for="genero">Género:</label>
+            <select id="genero" name="genero" required>
+                <option value="">Seleccione una opción</option>
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="otro">Otro</option>
+            </select>
+        </div>
+        <div>
+            <label for="id_alimentacion">Alimentación:</label>
+            <select id="id_alimentacion" name="id_alimentacion" required>
+                <option value="">Seleccione una opción</option>
+            </select>
+        </div>
+        <button type="submit">Registrar</button>
+        <div id="message" class="error"></div>
+    </form>
+
+    <!-- Tabla para mostrar los datos -->
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>DNI</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th>Género</th>
+                <th>ID Alimentación</th> <!-- Cambiado a ID Alimentación -->
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        let alimentaciones = []; // Definido globalmente para su uso en varias funciones
+
+        async function loadAlimentaciones() {
+            try {
+                const response = await fetch('http://localhost:3000/api/alimentaciones');
+                if (!response.ok) {
+                    throw new Error('Error en la carga de alimentaciones');
+                }
+
+                alimentaciones = await response.json();
+                console.log('Alimentaciones:', alimentaciones); // Debug: Verifica la respuesta
+                const select = document.getElementById('id_alimentacion');
+
+                alimentaciones.forEach(alimentacion => {
+                    const option = document.createElement('option');
+                    option.value = alimentacion.id;
+                    option.textContent = alimentacion.nombre;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error al cargar alimentaciones:', error);
+                document.getElementById('message').textContent = 'Error al cargar opciones de alimentación';
+            }
+        }
+
+        async function loadCuidadores() {
+            try {
+                const response = await fetch('http://localhost:3000/api/cuidadores');
+                if (!response.ok) {
+                    throw new Error('Error en la carga de cuidadores');
+                }
+
+                const cuidadores = await response.json();
+                console.log('Cuidadores:', cuidadores); // Debug: Verifica la respuesta
+                const tableBody = document.getElementById('dataTable').querySelector('tbody');
+                tableBody.innerHTML = ''; // Limpiar tabla existente
+
+                cuidadores.forEach(cuidador => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = cuidador.nombre;
+                    row.insertCell().textContent = cuidador.apellido;
+                    row.insertCell().textContent = cuidador.dni;
+                    row.insertCell().textContent = cuidador.telefono;
+                    row.insertCell().textContent = cuidador.direccion;
+                    row.insertCell().textContent = cuidador.genero;
+                    row.insertCell().textContent = cuidador.id_alimentacion; // Cambiado para mostrar id_alimentacion
+                });
+            } catch (error) {
+                console.error('Error al cargar cuidadores:', error);
+                document.getElementById('message').textContent = 'Error al cargar datos de cuidadores';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAlimentaciones().then(loadCuidadores);
+        });
+
+        document.getElementById('cuidadorForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = ''; // Limpiar mensajes anteriores
+
+            const nombre = document.getElementById('nombre').value.trim();
+            const apellido = document.getElementById('apellido').value.trim();
+            const dni = document.getElementById('dni').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+            const direccion = document.getElementById('direccion').value.trim();
+            const genero = document.getElementById('genero').value;
+            const id_alimentacion = document.getElementById('id_alimentacion').value;
+
+            // Validaciones
+            if (!nombre || nombre.length < 1) {
+                messageDiv.textContent = 'El nombre es obligatorio y debe tener al menos 1 carácter.';
+                return;
+            }
+
+            if (!apellido || apellido.length < 1) {
+                messageDiv.textContent = 'El apellido es obligatorio y debe tener al menos 1 carácter.';
+                return;
+            }
+
+            if (!dni || dni.length < 1) {
+                messageDiv.textContent = 'El DNI es obligatorio.';
+                return;
+            }
+
+            if (!telefono || telefono.length < 1) {
+                messageDiv.textContent = 'El teléfono es obligatorio.';
+                return;
+            }
+
+            if (!direccion || direccion.length < 1) {
+                messageDiv.textContent = 'La dirección es obligatoria.';
+                return;
+            }
+
+            if (!genero) {
+                messageDiv.textContent = 'Debe seleccionar un género.';
+                return;
+            }
+
+            if (!id_alimentacion) {
+                messageDiv.textContent = 'Debe seleccionar una opción de alimentación.';
+                return;
+            }
+
+            const formData = {
+                nombre: nombre,
+                apellido: apellido,
+                dni: dni,
+                telefono: telefono,
+                direccion: direccion,
+                genero: genero,
+                id_alimentacion: id_alimentacion
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/cuidadores', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('Success:', result);
+                messageDiv.textContent = 'Cuidador registrado con éxito';
+                messageDiv.className = 'success'; // Cambia el color a verde para indicar éxito
+                document.getElementById('cuidadorForm').reset();
+                
+                // Agregar el nuevo cuidador a la tabla
+                const tableBody = document.getElementById('dataTable').querySelector('tbody');
+                const row = tableBody.insertRow();
+                row.insertCell().textContent = nombre;
+                row.insertCell().textContent = apellido;
+                row.insertCell().textContent = dni;
+                row.insertCell().textContent = telefono;
+                row.insertCell().textContent = direccion;
+                row.insertCell().textContent = genero;
+                row.insertCell().textContent = id_alimentacion; // Cambiado para mostrar id_alimentacion
+
+            } catch (error) {
+                console.error('Error:', error);
+                messageDiv.textContent = 'Error al registrar el cuidador';
+                messageDiv.className = 'error'; // Mantiene el color rojo para errores
+            }
+        });
+    </script>
+</body>
+</html>

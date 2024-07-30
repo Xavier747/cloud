@@ -17,7 +17,6 @@ class Cuidador extends Model {
                 telefono: { type: 'string', minLength: 1 },
                 direccion: { type: 'string', minLength: 1 },
                 genero: { type: 'string', minLength: 1 }
-                
             }
         };
     }

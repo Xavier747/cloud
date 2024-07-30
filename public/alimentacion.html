@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Animal</title>
+    <title>Formulario de Alimentación</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -78,27 +78,27 @@
     </style>
 </head>
 <body>
-    <form id="animalForm">
-        <h1>Formulario de Animal</h1>
+    <h1>Registrar Alimentación</h1>
+    <form id="alimentacionForm">
         <div>
-            <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" name="nombre" required>
+            <label for="tipo_comida">Tipo de Comida:</label>
+            <input type="text" id="tipo_comida" name="tipo_comida" required>
         </div>
         <div>
-            <label for="especie">Especie:</label>
-            <input type="text" id="especie" name="especie" required>
+            <label for="cantidad">Cantidad:</label>
+            <input type="number" id="cantidad" name="cantidad" required min="0" step="0.1">
         </div>
         <div>
-            <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
-            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
+            <label for="hora_alimentacion">Hora de Alimentación:</label>
+            <input type="time" id="hora_alimentacion" name="hora_alimentacion" required>
         </div>
         <div>
-            <label for="habitat">Hábitat:</label>
-            <input type="text" id="habitat" name="habitat" required>
+            <label for="observaciones">Observaciones:</label>
+            <input type="text" id="observaciones" name="observaciones">
         </div>
         <div>
-            <label for="color">Color:</label>
-            <input type="text" id="color" name="color">
+            <label for="costo">Costo:</label>
+            <input type="number" id="costo" name="costo" min="0" step="0.01">
         </div>
         <button type="submit">Registrar</button>
         <div id="message"></div>
@@ -108,11 +108,11 @@
     <table id="dataTable">
         <thead>
             <tr>
-                <th>Nombre</th>
-                <th>Especie</th>
-                <th>Fecha de Nacimiento</th>
-                <th>Hábitat</th>
-                <th>Color</th>
+                <th>Tipo de Comida</th>
+                <th>Cantidad</th>
+                <th>Hora de Alimentación</th>
+                <th>Observaciones</th>
+                <th>Costo</th>
             </tr>
         </thead>
         <tbody>
@@ -122,79 +122,79 @@
     <script>
         async function loadData() {
             try {
-                const response = await fetch('http://localhost:3000/api/animals');
+                const response = await fetch('http://localhost:3000/api/alimentaciones');
                 if (!response.ok) {
                     throw new Error('Error en la carga de datos');
                 }
 
-                const animals = await response.json();
+                const alimentaciones = await response.json();
                 const tableBody = document.getElementById('dataTable').querySelector('tbody');
                 tableBody.innerHTML = ''; // Limpiar tabla existente
 
-                animals.forEach(animal => {
+                alimentaciones.forEach(alimentacion => {
                     const row = tableBody.insertRow();
-                    row.insertCell().textContent = animal.nombre;
-                    row.insertCell().textContent = animal.especie;
-                    row.insertCell().textContent = animal.fecha_nacimiento;
-                    row.insertCell().textContent = animal.habitat;
-                    row.insertCell().textContent = animal.color || '-'; // Mostrar '-' si está vacío
+                    row.insertCell().textContent = alimentacion.tipo_comida;
+                    row.insertCell().textContent = alimentacion.cantidad;
+                    row.insertCell().textContent = alimentacion.hora_alimentacion;
+                    row.insertCell().textContent = alimentacion.observaciones || '-'; // Mostrar '-' si está vacío
+                    row.insertCell().textContent = alimentacion.costo;
                 });
             } catch (error) {
                 console.error('Error al cargar datos:', error);
             }
         }
 
-        document.getElementById('animalForm').addEventListener('submit', async (event) => {
+        document.getElementById('alimentacionForm').addEventListener('submit', async (event) => {
             event.preventDefault(); // Evita el envío del formulario por defecto
         
-            const nombre = document.getElementById('nombre').value.trim();
-            const especie = document.getElementById('especie').value.trim();
-            const fecha_nacimiento = document.getElementById('fecha_nacimiento').value;
-            const habitat = document.getElementById('habitat').value.trim();
-            const color = document.getElementById('color').value.trim();
+            const tipo_comida = document.getElementById('tipo_comida').value.trim();
+            const cantidad = parseFloat(document.getElementById('cantidad').value);
+            const hora_alimentacion = document.getElementById('hora_alimentacion').value;
+            const observaciones = document.getElementById('observaciones').value.trim();
+            const costo = parseFloat(document.getElementById('costo').value);
             const messageDiv = document.getElementById('message');
         
             // Validación de datos
-            if (!nombre || nombre.length < 1) {
-                messageDiv.textContent = 'El nombre es obligatorio y debe tener al menos 1 carácter.';
+            if (!tipo_comida || tipo_comida.length < 1) {
+                messageDiv.textContent = 'El tipo de comida es obligatorio y debe tener al menos 1 carácter.';
                 messageDiv.className = 'error';
                 return;
             }
         
-            if (!especie || especie.length < 1) {
-                messageDiv.textContent = 'La especie es obligatoria y debe tener al menos 1 carácter.';
+            if (isNaN(cantidad) || cantidad < 0) {
+                messageDiv.textContent = 'La cantidad debe ser un número válido y mayor o igual a 0.';
                 messageDiv.className = 'error';
                 return;
             }
         
-            if (!fecha_nacimiento) {
-                messageDiv.textContent = 'La fecha de nacimiento es obligatoria.';
+            if (!hora_alimentacion.match(/^([01]\d|2[0-3]):([0-5]\d)$/)) {
+                messageDiv.textContent = 'La hora de alimentación debe estar en el formato HH:MM.';
                 messageDiv.className = 'error';
                 return;
             }
         
-            if (!habitat || habitat.length < 1) {
-                messageDiv.textContent = 'El hábitat es obligatorio y debe tener al menos 1 carácter.';
+            if (observaciones && observaciones.length < 1) {
+                messageDiv.textContent = 'Las observaciones, si están presentes, deben tener al menos 1 carácter.';
                 messageDiv.className = 'error';
                 return;
             }
         
-            if (color && color.length < 1) {
-                messageDiv.textContent = 'El color, si se proporciona, debe tener al menos 1 carácter.';
+            if (isNaN(costo) || costo < 0) {
+                messageDiv.textContent = 'El costo debe ser un número válido y mayor o igual a 0.';
                 messageDiv.className = 'error';
                 return;
             }
         
             const formData = {
-                nombre: nombre,
-                especie: especie,
-                fecha_nacimiento: fecha_nacimiento,
-                habitat: habitat,
-                color: color
+                tipo_comida: tipo_comida,
+                cantidad: cantidad,
+                hora_alimentacion: hora_alimentacion,
+                observaciones: observaciones,
+                costo: costo
             };
         
             try {
-                const response = await fetch('http://localhost:3000/api/animals', {
+                const response = await fetch('http://localhost:3000/api/alimentaciones', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -208,22 +208,22 @@
         
                 const result = await response.json();
                 console.log('Success:', result);
-                messageDiv.textContent = 'Animal registrado con éxito';
+                messageDiv.textContent = 'Alimentación registrada con éxito';
                 messageDiv.className = 'success';
-                document.getElementById('animalForm').reset(); // Resetea el formulario después de un envío exitoso
+                document.getElementById('alimentacionForm').reset(); // Resetea el formulario después de un envío exitoso
                 
                 // Agregar los datos a la tabla
                 const tableBody = document.getElementById('dataTable').querySelector('tbody');
                 const row = tableBody.insertRow();
-                row.insertCell().textContent = nombre;
-                row.insertCell().textContent = especie;
-                row.insertCell().textContent = fecha_nacimiento;
-                row.insertCell().textContent = habitat;
-                row.insertCell().textContent = color || '-'; // Mostrar '-' si está vacío
+                row.insertCell().textContent = tipo_comida;
+                row.insertCell().textContent = cantidad;
+                row.insertCell().textContent = hora_alimentacion;
+                row.insertCell().textContent = observaciones || '-'; // Mostrar '-' si está vacío
+                row.insertCell().textContent = costo;
 
             } catch (error) {
                 console.error('Error:', error);
-                messageDiv.textContent = 'Error al registrar el animal';
+                messageDiv.textContent = 'Error al registrar la alimentación';
                 messageDiv.className = 'error';
             }
         });

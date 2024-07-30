@@ -13,10 +13,9 @@ class Alimentacion extends Model {
                 id: { type: 'integer' },
                 tipo_comida: { type: 'string', minLength: 1 },
                 cantidad: { type: 'number', minimum: 0 },
-                hora_alimentacion: { type: 'string', format: 'time' },
+                hora_alimentacion: { type: 'string' }, // Cambiado a tipo string sin formato específico
                 observaciones: { type: 'string' },
                 costo: { type: 'integer' }
-
             }
         };
     }

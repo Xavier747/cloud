@@ -9,6 +9,8 @@ exports.up = function(knex) {
     return knex.schema.createTable('customer', table =>{
         table.increments('id').primary();
         table.string('name').notNullable();
+        table.string('direccion').notNullable();
+        table.string('telefono').notNullable();
         table.string('email').notNullable().unique();
         table.timestamp(true, true);
     });

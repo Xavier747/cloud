@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Animal</title>
+    <title>Formulario AJAX</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,10 +15,6 @@
             align-items: center;
             height: 100vh;
         }
-        h1 {
-            margin-top: 20px;
-            color: #333;
-        }
         form {
             background-color: #ffffff;
             padding: 20px;
@@ -26,17 +22,15 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
         }
-        div {
-            margin-bottom: 15px;
-        }
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: bold;
         }
         input {
             width: 100%;
             padding: 8px;
+            margin-bottom: 20px;
             border: 1px solid #cccccc;
             border-radius: 4px;
         }
@@ -47,7 +41,6 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            width: 100%;
         }
         button:hover {
             background-color: #45a049;
@@ -78,29 +71,19 @@
     </style>
 </head>
 <body>
-    <form id="animalForm">
-        <h1>Formulario de Animal</h1>
-        <div>
-            <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" name="nombre" required>
-        </div>
-        <div>
-            <label for="especie">Especie:</label>
-            <input type="text" id="especie" name="especie" required>
-        </div>
-        <div>
-            <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
-            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
-        </div>
-        <div>
-            <label for="habitat">Hábitat:</label>
-            <input type="text" id="habitat" name="habitat" required>
-        </div>
-        <div>
-            <label for="color">Color:</label>
-            <input type="text" id="color" name="color">
-        </div>
-        <button type="submit">Registrar</button>
+    <form id="customerForm">
+        <h1>FORMULARIO DE CUSTOMERS</h1>
+        <label for="name">Nombre:</label>
+        <input type="text" id="name" name="name" required><br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
+        <label for="direccion">Dirección:</label>
+        <input type="text" id="direccion" name="direccion" required><br>
+        <label for="telefono">Teléfono:</label>
+        <input type="text" id="telefono" name="telefono" required><br>
+        <label for="age">Edad:</label>
+        <input type="number" id="age" name="age" required min="0" step="1"><br>
+        <button type="submit">Enviar</button>
         <div id="message"></div>
     </form>
 
@@ -109,10 +92,10 @@
         <thead>
             <tr>
                 <th>Nombre</th>
-                <th>Especie</th>
-                <th>Fecha de Nacimiento</th>
-                <th>Hábitat</th>
-                <th>Color</th>
+                <th>Email</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Edad</th>
             </tr>
         </thead>
         <tbody>
@@ -122,79 +105,80 @@
     <script>
         async function loadData() {
             try {
-                const response = await fetch('http://localhost:3000/api/animals');
+                const response = await fetch('http://localhost:3000/api/customers');
                 if (!response.ok) {
                     throw new Error('Error en la carga de datos');
                 }
 
-                const animals = await response.json();
+                const customers = await response.json();
                 const tableBody = document.getElementById('dataTable').querySelector('tbody');
                 tableBody.innerHTML = ''; // Limpiar tabla existente
 
-                animals.forEach(animal => {
+                customers.forEach(customer => {
                     const row = tableBody.insertRow();
-                    row.insertCell().textContent = animal.nombre;
-                    row.insertCell().textContent = animal.especie;
-                    row.insertCell().textContent = animal.fecha_nacimiento;
-                    row.insertCell().textContent = animal.habitat;
-                    row.insertCell().textContent = animal.color || '-'; // Mostrar '-' si está vacío
+                    row.insertCell().textContent = customer.name;
+                    row.insertCell().textContent = customer.email;
+                    row.insertCell().textContent = customer.direccion;
+                    row.insertCell().textContent = customer.telefono;
+                    row.insertCell().textContent = customer.age;
                 });
             } catch (error) {
                 console.error('Error al cargar datos:', error);
             }
         }
 
-        document.getElementById('animalForm').addEventListener('submit', async (event) => {
+        document.getElementById('customerForm').addEventListener('submit', async (event) => {
             event.preventDefault(); // Evita el envío del formulario por defecto
         
-            const nombre = document.getElementById('nombre').value.trim();
-            const especie = document.getElementById('especie').value.trim();
-            const fecha_nacimiento = document.getElementById('fecha_nacimiento').value;
-            const habitat = document.getElementById('habitat').value.trim();
-            const color = document.getElementById('color').value.trim();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const direccion = document.getElementById('direccion').value;
+            const telefono = document.getElementById('telefono').value;
+            const age = parseInt(document.getElementById('age').value, 10); // Convertir a número entero
+        
             const messageDiv = document.getElementById('message');
         
-            // Validación de datos
-            if (!nombre || nombre.length < 1) {
-                messageDiv.textContent = 'El nombre es obligatorio y debe tener al menos 1 carácter.';
+            // Validaciones
+            if (name.trim() === '') {
+                messageDiv.textContent = 'El nombre es obligatorio.';
                 messageDiv.className = 'error';
                 return;
             }
         
-            if (!especie || especie.length < 1) {
-                messageDiv.textContent = 'La especie es obligatoria y debe tener al menos 1 carácter.';
+            if (!/^[\w\-\.]+@([\w\-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
+                messageDiv.textContent = 'El email no es válido.';
                 messageDiv.className = 'error';
                 return;
             }
         
-            if (!fecha_nacimiento) {
-                messageDiv.textContent = 'La fecha de nacimiento es obligatoria.';
+            if (direccion.trim() === '') {
+                messageDiv.textContent = 'La dirección es obligatoria.';
                 messageDiv.className = 'error';
                 return;
             }
         
-            if (!habitat || habitat.length < 1) {
-                messageDiv.textContent = 'El hábitat es obligatorio y debe tener al menos 1 carácter.';
+            if (!/^\d+$/.test(telefono)) {
+                messageDiv.textContent = 'El teléfono debe contener solo números.';
                 messageDiv.className = 'error';
                 return;
             }
         
-            if (color && color.length < 1) {
-                messageDiv.textContent = 'El color, si se proporciona, debe tener al menos 1 carácter.';
+            if (age < 0) {
+                messageDiv.textContent = 'La edad no puede ser negativa.';
                 messageDiv.className = 'error';
                 return;
             }
         
             const formData = {
-                nombre: nombre,
-                especie: especie,
-                fecha_nacimiento: fecha_nacimiento,
-                habitat: habitat,
-                color: color
+                name: name,
+                email: email,
+                direccion: direccion,
+                telefono: telefono,
+                age: age
             };
         
             try {
-                const response = await fetch('http://localhost:3000/api/animals', {
+                const response = await fetch('http://localhost:3000/api/customers', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -208,22 +192,22 @@
         
                 const result = await response.json();
                 console.log('Success:', result);
-                messageDiv.textContent = 'Animal registrado con éxito';
+                messageDiv.textContent = 'Formulario enviado con éxito';
                 messageDiv.className = 'success';
-                document.getElementById('animalForm').reset(); // Resetea el formulario después de un envío exitoso
+                document.getElementById('customerForm').reset();
                 
                 // Agregar los datos a la tabla
                 const tableBody = document.getElementById('dataTable').querySelector('tbody');
                 const row = tableBody.insertRow();
-                row.insertCell().textContent = nombre;
-                row.insertCell().textContent = especie;
-                row.insertCell().textContent = fecha_nacimiento;
-                row.insertCell().textContent = habitat;
-                row.insertCell().textContent = color || '-'; // Mostrar '-' si está vacío
+                row.insertCell().textContent = name;
+                row.insertCell().textContent = email;
+                row.insertCell().textContent = direccion;
+                row.insertCell().textContent = telefono;
+                row.insertCell().textContent = age;
 
             } catch (error) {
                 console.error('Error:', error);
-                messageDiv.textContent = 'Error al registrar el animal';
+                messageDiv.textContent = 'Error al enviar el formulario';
                 messageDiv.className = 'error';
             }
         });
